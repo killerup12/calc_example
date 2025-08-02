@@ -117,7 +117,7 @@ docker-push: docker-build-hub ## Загрузить образ в Docker Hub
 
 docker-pull:
 	ssh root@109.107.182.160 '\
-		echo "dckr_pat_yUo4BZSr0BlFv-FzTq9MT8sfqDo" | docker login -u killerup12 --password-stdin && \
+		echo "$(DOCKER_HUB_TOKEN)" | docker login -u killerup12 --password-stdin && \
     	docker pull $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG) && \
     	docker stop calc-example || true && \
     	docker rm calc-example || true && \
