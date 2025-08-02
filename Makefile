@@ -68,11 +68,11 @@ install-air: ## Установить Air для автоперезагрузки
 
 docker-build: ## Собрать Docker образ
 	@echo "$(GREEN)Сборка Docker образа...$(NC)"
-	docker build -t $(BINARY_NAME) .
+	docker build --platform linux/amd64 -t $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG) .
 
 docker-run: ## Запустить в Docker
 	@echo "$(GREEN)Запуск в Docker...$(NC)"
-	docker run -p 8080:8080 $(BINARY_NAME)
+	docker run -p 8080:8080 $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
 
 # Команды для работы с базой данных
 db-migrate: ## Выполнить миграции БД
@@ -115,6 +115,15 @@ docker-build-hub: docker-build ## Собрать образ для Docker Hub
 docker-push: docker-build-hub ## Загрузить образ в Docker Hub
 	@echo "$(GREEN)Загрузка образа в Docker Hub...$(NC)"
 	docker push $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
+
+docker-pull:
+	ssh root@109.107.182.160 '\
+		echo "dckr_pat_yUo4BZSr0BlFv-FzTq9MT8sfqDo" | docker login -u killerup12 --password-stdin && \
+    	docker pull calc_example:latest && \
+    	docker stop calc-example  true && \
+    	docker rm calc-example  true && \
+    	docker run -itd --restart always --name calc-example calc-example:latest \
+  	'
 
 # Команды для управления сервером
 stop: ## Остановить сервер

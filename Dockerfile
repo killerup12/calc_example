@@ -1,6 +1,10 @@
-# Многоэтапная сборка для оптимизации размера образа
-# Используем Debian-based образ для лучшей совместимости с SQLite3
-FROM golang:1.22-bullseye AS builder
+# Указываем базовый образ с явной архитектурой
+FROM --platform=linux/amd64 golang:1.22-bullseye AS builder
+
+# Устанавливаем переменные окружения для Go
+ENV GOOS=linux \
+    GOARCH=amd64 \
+    CGO_ENABLED=1
 
 # Установка необходимых пакетов
 RUN apt-get update && apt-get install -y \
@@ -26,7 +30,7 @@ RUN go mod download
 COPY . .
 
 # Сборка приложения
-RUN CGO_ENABLED=1 GOOS=linux go build -installsuffix cgo -o main cmd/server/main.go
+RUN go build -ldflags="-w -s" -o main cmd/server/main.go
 
 # Финальный образ
 FROM debian:bullseye-slim
