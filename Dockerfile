@@ -37,9 +37,9 @@ RUN apt-get update && apt-get install -y \
     tzdata \
     && rm -rf /var/lib/apt/lists/*
 
-# Создание пользователя для безопасности
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup
+# Создание пользователя и группы для безопасности
+RUN groupadd -r -g 1001 appgroup && \
+    useradd -r -u 1001 -g appgroup -s /sbin/nologin appuser
 
 # Установка рабочей директории
 WORKDIR /app
