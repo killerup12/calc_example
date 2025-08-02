@@ -1,9 +1,17 @@
 # Многоэтапная сборка для оптимизации размера образа
-FROM golang:1.22-alpine AS builder
+# Используем Debian-based образ для лучшей совместимости с SQLite3
+FROM golang:1.22-bullseye AS builder
 
 # Установка необходимых пакетов
-RUN apk add --no-cache git ca-certificates tzdata build-base \
-    gcc musl-dev sqlite-dev linux-headers
+RUN apt-get update && apt-get install -y \
+    git \
+    ca-certificates \
+    tzdata \
+    gcc \
+    g++ \
+    libc6-dev \
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Установка рабочей директории
 WORKDIR /app
@@ -21,10 +29,13 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/main.go
 
 # Финальный образ
-FROM alpine:latest
+FROM debian:bullseye-slim
 
 # Установка необходимых пакетов
-RUN apk --no-cache add ca-certificates tzdata
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
 
 # Создание пользователя для безопасности
 RUN addgroup -g 1001 -S appgroup && \
