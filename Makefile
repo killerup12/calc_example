@@ -97,6 +97,25 @@ api-test: ## Протестировать API
 release: clean build ## Создать релиз
 	@echo "$(GREEN)Релиз создан: $(BUILD_DIR)/$(BINARY_NAME)$(NC)"
 
+# Docker Hub configuration
+# Используем переменные окружения или значения по умолчанию
+DOCKER_HUB_USERNAME ?= $(or $(shell echo $$DOCKER_HUB_USERNAME),your_dockerhub_username)
+DOCKER_IMAGE_NAME ?= calc_example
+DOCKER_TAG ?= latest
+
+# Docker Hub commands
+docker-login: ## Войти в Docker Hub
+	@echo "$(GREEN)Логин в Docker Hub...$(NC)"
+	@echo "$(YELLOW)Убедитесь, что вы залогинены в Docker Hub с помощью команды: docker login$(NC)"
+
+docker-build-hub: docker-build ## Собрать образ для Docker Hub
+	@echo "$(GREEN)Переименование образа для Docker Hub...$(NC)"
+	docker tag $(BINARY_NAME) $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
+
+docker-push: docker-build-hub ## Загрузить образ в Docker Hub
+	@echo "$(GREEN)Загрузка образа в Docker Hub...$(NC)"
+	docker push $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
+
 # Команды для управления сервером
 stop: ## Остановить сервер
 	@echo "$(GREEN)Остановка сервера...$(NC)"
