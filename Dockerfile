@@ -26,7 +26,7 @@ RUN go mod download
 COPY . .
 
 # Сборка приложения
-RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -installsuffix cgo -o main cmd/server/main.go
 
 # Финальный образ
 FROM debian:bullseye-slim
