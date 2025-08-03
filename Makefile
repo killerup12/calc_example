@@ -107,21 +107,17 @@ docker-login: ## Войти в Docker Hub
 	@echo "$(GREEN)Логин в Docker Hub...$(NC)"
 	@echo "$(YELLOW)Убедитесь, что вы залогинены в Docker Hub с помощью команды: docker login$(NC)"
 
-docker-build-hub: docker-build ## Собрать образ для Docker Hub
+deploy: docker-build ## Загрузить образ в Docker Hub
 	@echo "$(GREEN)Переименование образа для Docker Hub...$(NC)"
 	docker tag $(DOCKER_HUB_USERNAME)/$(BINARY_NAME) $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
-
-docker-push: docker-build-hub ## Загрузить образ в Docker Hub
 	@echo "$(GREEN)Загрузка образа в Docker Hub...$(NC)"
 	docker push $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
-
-docker-pull:
 	ssh root@109.107.182.160 '\
 		echo "$(DOCKER_HUB_TOKEN)" | docker login -u killerup12 --password-stdin && \
     	docker pull $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG) && \
     	docker stop calc-example || true && \
     	docker rm calc-example || true && \
-    	docker run -itd --restart always --name calc-example $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG) \
+    	docker run -itd --restart always --name calc-example -p 0.0.0.0:8080:8080 $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG) \
   	'
 
 # Команды для управления сервером

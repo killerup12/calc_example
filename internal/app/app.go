@@ -20,14 +20,14 @@ import (
 )
 
 type App struct {
-	config    *config.Config
-	logger    *logger.Logger
-	router    *gin.Engine
-	server    *http.Server
-	db        *database.Database
-	handler   *handler.Handler
-	service   *service.Service
-	repo      *repository.Repository
+	config  *config.Config
+	logger  *logger.Logger
+	router  *gin.Engine
+	server  *http.Server
+	db      *database.Database
+	handler *handler.Handler
+	service *service.Service
+	repo    *repository.Repository
 }
 
 func New(cfg *config.Config) *App {
@@ -79,7 +79,7 @@ func New(cfg *config.Config) *App {
 func (a *App) Run() error {
 	// Запускаем сервер в горутине
 	go func() {
-		a.logger.Info("Сервер запущен на порту:", a.config.Server.Port)
+		a.logger.Info("Сервер запущен на:", a.config.Server.Host, ":", a.config.Server.Port)
 		if err := a.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			a.logger.Fatal("Ошибка запуска сервера:", err)
 		}
@@ -112,21 +112,21 @@ func (a *App) Run() error {
 func setupMiddleware(router *gin.Engine, log *logger.Logger) {
 	// Логирование запросов
 	router.Use(gin.Logger())
-	
+
 	// Recovery middleware
 	router.Use(gin.Recovery())
-	
+
 	// CORS middleware
 	router.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-		
+
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
 		}
-		
+
 		c.Next()
 	})
-} 
+}

@@ -39,6 +39,7 @@ FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     tzdata \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Создание пользователя и группы для безопасности
@@ -64,8 +65,8 @@ USER appuser
 EXPOSE 8080
 
 # Проверка здоровья
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=60s \
+    CMD curl -f -X GET http://localhost:8080/health || exit 1
 
 # Запуск приложения
 CMD ["./main"] 

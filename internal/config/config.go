@@ -41,7 +41,7 @@ func Load() (*Config, error) {
 	cfg := &Config{
 		Server: ServerConfig{
 			Port: getEnv("SERVER_PORT", "8080"),
-			Host: getEnv("SERVER_HOST", "localhost"),
+			Host: getEnv("SERVER_HOST", "0.0.0.0"),
 		},
 		Database: DatabaseConfig{
 			Driver:   getEnv("DB_DRIVER", "sqlite"),
@@ -74,4 +74,4 @@ func getEnvAsInt(key string, defaultValue int) int {
 		}
 	}
 	return defaultValue
-} 
+}

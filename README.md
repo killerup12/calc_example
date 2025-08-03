@@ -117,21 +117,12 @@ docker run -p 8080:8080 calc_example
 
 ## 📋 API Endpoints
 
-### Пользователи
+### Заявки (Issues)
 
-- `POST /api/v1/users/` - Создать пользователя
-- `GET /api/v1/users/` - Получить всех пользователей
-- `GET /api/v1/users/:id` - Получить пользователя по ID
-- `PUT /api/v1/users/:id` - Обновить пользователя
-- `DELETE /api/v1/users/:id` - Удалить пользователя
-
-### Расчеты
-
-- `POST /api/v1/calculations/` - Создать расчет
-- `GET /api/v1/calculations/` - Получить все расчеты
-- `GET /api/v1/calculations/:id` - Получить расчет по ID
-- `DELETE /api/v1/calculations/:id` - Удалить расчет
-- `GET /api/v1/users/:user_id/calculations` - Получить расчеты пользователя
+- `POST /api/v1/issue` - Создать новую заявку
+- `GET /api/v1/issues` - Получить список всех заявок
+- `GET /api/v1/issue/:id` - Получить заявку по ID
+- `PATCH /api/v1/issue/:id` - Обновить статус заявки
 
 ### Система
 
@@ -139,34 +130,47 @@ docker run -p 8080:8080 calc_example
 
 ## 📝 Примеры запросов
 
-### Создание пользователя
+### Создание заявки
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/users/ \
+curl -X POST http://109.107.182.160:8080/api/v1/issue \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "john_doe",
-    "email": "john@example.com",
-    "password": "password123"
+    "full_name": "Иван Иванов",
+    "contact_info": "+7-999-123-45-67",
+    "preferred_contact_method": "Телефон",
+    "has_china_experience": true,
+    "has_supplier_contacts": false,
+    "product_description": "Электронные компоненты",
+    "existing_product_links": "https://example.com/product1",
+    "volume": 10.5,
+    "weight": 2.3,
+    "density": 0.5,
+    "previous_invoice_file": "invoice.pdf",
+    "expected_delivery_date": "2024-12-01"
   }'
 ```
 
-### Создание расчета
+### Получение списка заявок
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/calculations/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "operation": "add",
-    "operand1": 10,
-    "operand2": 5
-  }'
+curl http://localhost:8080/api/v1/issues
 ```
 
-### Получение всех пользователей
+### Получение заявки по ID
 
 ```bash
-curl http://localhost:8080/api/v1/users/
+curl http://localhost:8080/api/v1/issue/1
+```
+
+### Обновление статуса заявки
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/issue/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "closed"
+  }'
 ```
 
 ## ⚙️ Конфигурация
@@ -217,7 +221,8 @@ go build -o bin/server cmd/server/main.go
 
 ## 🚀 Деплой
 
-1. Соберите приложение
-2. Скопируйте бинарный файл на сервер
-3. Настройте переменные окружения
-4. Запустите приложение
+```bash
+make docker-build-hub
+make docker-push
+make docker-pull
+```
