@@ -30,6 +30,7 @@ func (h *Handler) InitRoutes(router *gin.Engine) {
 		// Заявки
 		api.POST("/issue", h.createIssue)
 		api.GET("/issues", h.getAllIssues)
+		api.GET("/issue/:id", h.getIssueByID)
 		api.PATCH("/issue/:id", h.updateIssue)
 	}
 
@@ -67,6 +68,23 @@ func (h *Handler) getAllIssues(c *gin.Context) {
 	c.JSON(http.StatusOK, issues)
 }
 
+func (h *Handler) getIssueByID(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID заявки"})
+		return
+	}
+
+	issue, err := h.service.GetIssueByID(uint(id))
+	if err != nil {
+		h.logger.Error("Ошибка получения заявки:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Внутренняя ошибка сервера"})
+		return
+	}
+
+	c.JSON(http.StatusOK, issue)
+}
+
 func (h *Handler) updateIssue(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -97,4 +115,4 @@ func (h *Handler) healthCheck(c *gin.Context) {
 		"status":  "ok",
 		"message": "Сервер работает",
 	})
-} 
+}

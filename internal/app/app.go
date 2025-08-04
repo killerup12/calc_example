@@ -79,7 +79,7 @@ func New(cfg *config.Config) *App {
 func (a *App) Run() error {
 	// Запускаем сервер в горутине
 	go func() {
-		a.logger.Info("Сервер запущен на:", a.config.Server.Host, ":", a.config.Server.Port)
+		a.logger.Info("Сервер запущен на: ", a.config.Server.Host, ":", a.config.Server.Port)
 		if err := a.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			a.logger.Fatal("Ошибка запуска сервера:", err)
 		}
