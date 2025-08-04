@@ -60,7 +60,7 @@ func (h *Handler) createIssue(c *gin.Context) {
 	}
 
 	// Отправка сообщения в Telegram
-	err = sendTelegramMessage(req) // Передаем req для формирования сообщения
+	err = sendTelegramMessage(issue) // Передаем req для формирования сообщения
 	if err != nil {
 		h.logger.Error("Ошибка отправки сообщения в Telegram:", err)
 	}
@@ -68,11 +68,12 @@ func (h *Handler) createIssue(c *gin.Context) {
 	c.JSON(http.StatusCreated, issue)
 }
 
-func sendTelegramMessage(req model.CreateIssueRequest) error {
+func sendTelegramMessage(req *model.IssueResponse) error {
 	url := os.Getenv("TELEGRAM_BOT_SERVICE") + "/send-message"
 
 	data := map[string]string{
-		"text": fmt.Sprintf("Новая заявка создана: %s", req.FullName),
+		"text": fmt.Sprintf("Новая заявка создана:\nID: %d\nФИО: %s\nКонтактная информация: %s",
+			req.ID, req.FullName, req.ContactInfo),
 	}
 
 	jsonData, err := json.Marshal(data)

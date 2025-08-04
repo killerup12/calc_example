@@ -114,6 +114,7 @@ deploy: docker-build ## Загрузить образ в Docker Hub
 	docker push $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
 	ssh root@109.107.182.160 '\
 		echo "$(DOCKER_HUB_TOKEN)" | docker login -u killerup12 --password-stdin && \
+		docker images prune -a -f && \
     	docker pull $(DOCKER_HUB_USERNAME)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG) && \
     	docker stop calc-example || true && \
     	docker rm calc-example || true && \
