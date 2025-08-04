@@ -1,7 +1,12 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"calc_example/internal/model"
@@ -54,7 +59,48 @@ func (h *Handler) createIssue(c *gin.Context) {
 		return
 	}
 
+	// Отправка сообщения в Telegram
+	err = sendTelegramMessage(req) // Передаем req для формирования сообщения
+	if err != nil {
+		h.logger.Error("Ошибка отправки сообщения в Telegram:", err)
+	}
+
 	c.JSON(http.StatusCreated, issue)
+}
+
+func sendTelegramMessage(req model.CreateIssueRequest) error {
+	url := os.Getenv("TELEGRAM_BOT_SERVICE") + "/send-message"
+
+	data := map[string]string{
+		"text": fmt.Sprintf("Новая заявка создана: %s", req.FullName),
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("_ошибка при преобразовании в JSON: %v", err)
+	}
+
+	client := &http.Client{}
+
+	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("__ошибка при создании запроса: %v", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return fmt.Errorf("___ошибка при выполнении запроса: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body) // Читаем тело ответа для диагностики
+		return fmt.Errorf("неуспешный статус ответа: %s, тело: %s", resp.Status, string(body))
+	}
+
+	return nil
 }
 
 func (h *Handler) getAllIssues(c *gin.Context) {

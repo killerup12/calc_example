@@ -8,14 +8,19 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	Log      LogConfig
+	Server      ServerConfig
+	TelegramBot TelegramBotConfig
+	Database    DatabaseConfig
+	Log         LogConfig
 }
 
 type ServerConfig struct {
 	Port string
 	Host string
+}
+
+type TelegramBotConfig struct {
+	Url string
 }
 
 type DatabaseConfig struct {
@@ -42,6 +47,9 @@ func Load() (*Config, error) {
 		Server: ServerConfig{
 			Port: getEnv("SERVER_PORT", "8080"),
 			Host: getEnv("SERVER_HOST", "0.0.0.0"),
+		},
+		TelegramBot: TelegramBotConfig{
+			Url: getEnv("TELEGRAM_BOT_SERVICE", ""),
 		},
 		Database: DatabaseConfig{
 			Driver:   getEnv("DB_DRIVER", "sqlite"),
