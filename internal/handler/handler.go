@@ -68,12 +68,12 @@ func (h *Handler) createIssue(c *gin.Context) {
 	c.JSON(http.StatusCreated, issue)
 }
 
-func sendTelegramMessage(req *model.IssueResponse) error {
+func sendTelegramMessage(issue *model.IssueResponse) error {
 	url := os.Getenv("TELEGRAM_BOT_SERVICE") + "/send-message"
 
 	data := map[string]string{
-		"text": fmt.Sprintf("Новая заявка создана:\nID: %d\nФИО: %s\nКонтактная информация: %s",
-			req.ID, req.FullName, req.ContactInfo),
+		"text": fmt.Sprintf("🆕<b>Новая заявка</b>:\n\n👤 Имя: %s\n📞Телефон: %s\n\n📦 Товар: %s\n📲 Источник: %s\n\n🧑🏻‍💻Менеджер: %s\n📌 Статус: %s",
+			issue.FullName, issue.ContactInfo, issue.ProductDescription, "Сайт", "Виртуальный помощник", "Ожидает ответа"),
 	}
 
 	jsonData, err := json.Marshal(data)
