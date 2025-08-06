@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Server      ServerConfig
 	TelegramBot TelegramBotConfig
+	Frontend    FrontendConfig
 	Database    DatabaseConfig
 	Log         LogConfig
 }
@@ -21,6 +22,11 @@ type ServerConfig struct {
 
 type TelegramBotConfig struct {
 	Url string
+}
+
+type FrontendConfig struct {
+	Url  string
+	Port string
 }
 
 type DatabaseConfig struct {
@@ -50,6 +56,10 @@ func Load() (*Config, error) {
 		},
 		TelegramBot: TelegramBotConfig{
 			Url: getEnv("TELEGRAM_BOT_SERVICE", ""),
+		},
+		Frontend: FrontendConfig{
+			Url:  getEnv("FRONTEND_HOST", ""),
+			Port: getEnv("FRONTEND_PORT", ""),
 		},
 		Database: DatabaseConfig{
 			Driver:   getEnv("DB_DRIVER", "sqlite"),

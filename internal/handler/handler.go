@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -70,11 +71,39 @@ func (h *Handler) createIssue(c *gin.Context) {
 
 func sendTelegramMessage(issue *model.IssueResponse) error {
 	url := os.Getenv("TELEGRAM_BOT_SERVICE") + "/send-message"
+	log.Println(url)
 
-	data := map[string]string{
-		"text": fmt.Sprintf("🆕<b>Новая заявка</b>:\n\n👤 Имя: %s\n📞Телефон: %s\n\n📦 Товар: %s\n📲 Источник: %s\n\n🧑🏻‍💻Менеджер: %s\n📌 Статус: %s",
-			issue.FullName, issue.ContactInfo, issue.ProductDescription, "Сайт", "Виртуальный помощник", "Ожидает ответа"),
+	host := os.Getenv("FRONTEND_HOST")
+	if host == "" {
+		host = "http://127.0.0.1"
 	}
+	port := os.Getenv("FRONTEND_PORT")
+	if port == "" {
+		port = "8081"
+	}
+
+	issueLink := fmt.Sprintf("%s:%s/#/issues/%d", host, port, issue.ID)
+	log.Println(issueLink)
+	log.Println(fmt.Sprintf("<a href=\"%s\">Открыть заявку!</a>", issueLink))
+
+	message := fmt.Sprintf("🆕 <b>Новая заявка</b>\n\n"+
+		"👤 Имя: %s\n"+
+		"📞 Телефон: %s\n\n"+
+		"📦 Товар: %s\n"+
+		"📲 Источник: %s\n\n"+
+		"🧑🏻‍💻 Менеджер: %s\n"+
+		"📌 Статус: %s\n\n"+
+		"🔗 <a href=\"%s\">Открыть заявку!</a>",
+		issue.FullName,
+		issue.ContactInfo,
+		issue.ProductDescription,
+		"Сайт",
+		"Виртуальный помощник",
+		"Ожидает ответа",
+		issueLink,
+	)
+
+	data := map[string]string{"text": message}
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
